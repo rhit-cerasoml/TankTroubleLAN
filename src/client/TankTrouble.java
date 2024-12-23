@@ -1,7 +1,6 @@
 package client;
 
 import processing.core.PApplet;
-import processing.core.PGraphics;
 
 public class TankTrouble extends PApplet {
 
