@@ -7,7 +7,12 @@ import tanktrouble.generated.util.net.host.ConnectionAcceptor;
 import tanktrouble.generated.util.net.host.TCPHost;
 import tanktrouble.generated.util.net.protocol.ProtocolManager;
 import tanktrouble.generated.util.pool.ArrayListPool;
+import tanktrouble.generated.util.pool.HashMapPool;
 import tanktrouble.generated.util.pool.Pool;
+import tanktrouble.generated.util.serial.Deserializer;
+import tanktrouble.generated.util.serial.Serializer;
+import tanktrouble.generated.util.serial.SerializingInputStream;
+import tanktrouble.generated.util.serial.SerializingOutputStream;
 
 import java.net.Socket;
 import java.util.Random;
@@ -18,6 +23,7 @@ public class Game {
     ProtocolManager protocolManager;
 
     Pool<Integer, Bullet> bullets;
+    Pool<String, Tank> tanks;
     public Game(boolean host){
         if(host){
             this.connection = new ConnectionGroup();
@@ -38,6 +44,10 @@ public class Game {
         }
         protocolManager = new ProtocolManager(connection);
         bullets = new Pool<>(new ArrayListPool<>(Bullet::new), protocolManager, host);
+        tanks = new Pool<>(new HashMapPool<>(
+                (item, out) -> out.writeString(item),
+                SerializingInputStream::readString,
+                Tank::new), protocolManager, host);
 
         if(!host) {
             try {

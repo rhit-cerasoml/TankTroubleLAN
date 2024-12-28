@@ -1,22 +1,22 @@
 package tanktrouble.generated.util.pool;
 
-import tanktrouble.generated.util.serial.Deserializer;
-import tanktrouble.generated.util.serial.Serializable;
-import tanktrouble.generated.util.serial.SerializingInputStream;
-import tanktrouble.generated.util.serial.SerializingOutputStream;
+import tanktrouble.generated.util.serial.*;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 //----- End segment : [package] -----
 // This is a partially generated file, please only modify code between a pair of start and end segments
 // or above the first end segment. Please do not modify the start/end tags.
-public class HashMapPool<Key extends Serializable, Value extends Serializable> implements PoolContent<Key, Value> {
+public class HashMapPool<Key, Value extends Serializable> implements PoolContent<Key, Value> {
     HashMap<Key, Value> content = new HashMap<>();
     Deserializer<Key> keyDeserializer;
     Deserializer<Value> valueDeserializer;
+    Serializer<Key> keySerializer;
 
-    public HashMapPool(Deserializer<Key> keyDeserializer, Deserializer<Value> valueDeserializer){
+    public HashMapPool(Serializer<Key> keySerializer, Deserializer<Key> keyDeserializer, Deserializer<Value> valueDeserializer){
+        this.keySerializer = keySerializer;
         this.keyDeserializer = keyDeserializer;
         this.valueDeserializer = valueDeserializer;
     }
@@ -47,8 +47,13 @@ public class HashMapPool<Key extends Serializable, Value extends Serializable> i
     }
 
     @Override
+    public int size() {
+        return content.size();
+    }
+
+    @Override
     public void serializeKey(Key key, SerializingOutputStream out) {
-        key.serialize(out);
+        keySerializer.serialize(key, out);
     }
 
     @Override
@@ -65,7 +70,7 @@ public class HashMapPool<Key extends Serializable, Value extends Serializable> i
     public void serialize(SerializingOutputStream out) {
         out.writeInt(content.size());
         for(Map.Entry<Key, Value> entry : content.entrySet()){
-            entry.getKey().serialize(out);
+            keySerializer.serialize(entry.getKey(), out);
             entry.getValue().serialize(out);
         }
     }
@@ -76,5 +81,10 @@ public class HashMapPool<Key extends Serializable, Value extends Serializable> i
         for(int i = 0; i < len; i++){
             this.content.put(deserializeKey(in), valueDeserializer.deserialize(in));
         }
+    }
+
+    @Override
+    public Iterator<Map.Entry<Key, Value>> iterator() {
+        return content.entrySet().iterator();
     }
 }

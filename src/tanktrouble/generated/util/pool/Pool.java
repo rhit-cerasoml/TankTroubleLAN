@@ -9,12 +9,14 @@ import tanktrouble.generated.util.serial.SerializingOutputStream;
 
 import java.io.IOException;
 import java.util.ArrayDeque;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 //----- End segment : [package] -----
 // This is a partially generated file, please only modify code between a pair of start and end segments
 // or above the first end segment. Please do not modify the start/end tags.
-public class Pool<Key, Value extends Serializable> {
+public class Pool<Key, Value extends Serializable> implements Iterable<Map.Entry<Key, Value>> {
     private final boolean owner;
     private final PoolContent<Key, Value> content;
     private final ReentrantLock queueLock = new ReentrantLock();
@@ -54,6 +56,11 @@ public class Pool<Key, Value extends Serializable> {
             requestQueue.pop().execute();
         }
         queueLock.unlock();
+    }
+
+    @Override
+    public Iterator<Map.Entry<Key, Value>> iterator() {
+        return content.iterator();
     }
 
     private enum ActionType{
@@ -190,6 +197,10 @@ public class Pool<Key, Value extends Serializable> {
         }else{
             emit(new Action(ActionType.SYNC));
         }
+    }
+
+    public int size(){
+        return content.size();
     }
 
     private void resolveSyncResult(byte[] data) throws SerializingInputStream.InvalidStreamLengthException {

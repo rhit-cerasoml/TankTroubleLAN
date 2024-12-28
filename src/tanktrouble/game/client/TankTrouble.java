@@ -1,10 +1,8 @@
 package tanktrouble.game.client;
 
 import processing.core.PApplet;
-import tanktrouble.generated.util.net.connection.ConnectionGroup;
-import tanktrouble.generated.util.net.protocol.ProtocolManager;
-import tanktrouble.generated.util.pool.ArrayListPool;
-import tanktrouble.generated.util.pool.Pool;
+
+import java.util.Map;
 
 public class TankTrouble extends PApplet {
     public static boolean isHost;
@@ -37,8 +35,8 @@ public class TankTrouble extends PApplet {
             }
             fill(255, 255, 125);
             stroke(255);
-            for(int i = 0; true; i++) {
-                Bullet b = game.bullets.get(i);
+            for(Map.Entry<Integer, Bullet> entry : game.bullets) {
+                Bullet b = entry.getValue();
                 if(isHost){
                     b.x += random(-1.0f, 1.0f);
                     b.y += random(-1.0f, 1.0f);

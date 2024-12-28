@@ -49,4 +49,5 @@ public class ConnectionGroup implements Connection {
     public boolean isClosed() {
         return !open;
     }
+
 }

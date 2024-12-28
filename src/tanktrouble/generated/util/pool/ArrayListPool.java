@@ -6,6 +6,8 @@ import tanktrouble.generated.util.serial.SerializingInputStream;
 import tanktrouble.generated.util.serial.SerializingOutputStream;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
 
 //----- End segment : [package] -----
 // This is a partially generated file, please only modify code between a pair of start and end segments
@@ -38,6 +40,11 @@ public class ArrayListPool<T extends Serializable> implements PoolContent<Intege
     }
 
     @Override
+    public int size() {
+        return content.size();
+    }
+
+    @Override
     public void serializeKey(Integer index, SerializingOutputStream out) {
         out.writeInt(index);
     }
@@ -60,5 +67,37 @@ public class ArrayListPool<T extends Serializable> implements PoolContent<Intege
     @Override
     public void deserialize(SerializingInputStream in) throws SerializingInputStream.InvalidStreamLengthException {
         this.content = in.readArrayList(deserializer);
+    }
+
+    @Override
+    public Iterator<Map.Entry<Integer, T>> iterator() {
+        return new Iterator<Map.Entry<Integer, T>>() {
+            int index = -1;
+            @Override
+            public boolean hasNext() {
+                return index < content.size() - 1;
+            }
+
+            @Override
+            public Map.Entry<Integer, T> next() {
+                index++;
+                return new Map.Entry<Integer, T>() {
+                    @Override
+                    public Integer getKey() {
+                        return index;
+                    }
+
+                    @Override
+                    public T getValue() {
+                        return content.get(index);
+                    }
+
+                    @Override
+                    public T setValue(T value) {
+                        return content.set(index, value);
+                    }
+                };
+            }
+        };
     }
 }
