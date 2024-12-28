@@ -1,4 +1,4 @@
-package client;
+package tanktrouble.game.client;
 
 import processing.core.PApplet;
 

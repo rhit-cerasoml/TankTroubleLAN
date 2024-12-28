@@ -1,8 +1,12 @@
-package util;
+package tanktrouble.generated.util.serial;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
+//----- End segment : [package] -----
+// This is a partially generated file, please only modify code between a pair of start and end segments
+// or above the first end segment. Please do not modify the start/end tags.
 public class SerializingOutputStream extends ByteArrayOutputStream {
 
     public SerializingOutputStream() { super(); }
@@ -45,5 +49,20 @@ public class SerializingOutputStream extends ByteArrayOutputStream {
         writeBytes(s.getBytes());
     }
 
+    public void writeBoolean(boolean b){
+        write(b ? 0x01 : 0x00);
+    }
+
+    public void writeByteArray(byte[] b){
+        writeInt(b.length);
+        writeBytes(b);
+    }
+
+    public <T extends Serializable> void writeArrayList(ArrayList<T> array){
+        writeInt(array.size());
+        for(Serializable element : array){
+            element.serialize(this);
+        }
+    }
 
 }
