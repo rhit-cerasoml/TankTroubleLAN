@@ -47,6 +47,11 @@ public class HashMapPool<Key, Value extends Serializable> implements PoolContent
     }
 
     @Override
+    public void update(Key key, Value value) {
+        content.put(key, value);
+    }
+
+    @Override
     public int size() {
         return content.size();
     }

@@ -14,6 +14,7 @@ public interface PoolContent<Key, Value extends Serializable> extends Iterable<M
     void remove(Key key);
     Key find(Value value);
     Value get(Key key);
+    void update(Key key, Value value);
     int size();
 
     void serializeKey(Key key, SerializingOutputStream out);

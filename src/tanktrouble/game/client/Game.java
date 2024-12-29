@@ -24,7 +24,8 @@ public class Game {
 
     Pool<Integer, Bullet> bullets;
     Pool<String, Tank> tanks;
-    public Game(boolean host){
+    Tank selfTank;
+    public Game(boolean host, String name){
         if(host){
             this.connection = new ConnectionGroup();
             try {
@@ -49,6 +50,14 @@ public class Game {
                 SerializingInputStream::readString,
                 Tank::new), protocolManager, host);
 
+        selfTank = new Tank(250, 250, name);
+
+        try{
+            tanks.add(name, selfTank);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
         if(!host) {
             try {
                 Random r = new Random();
@@ -56,6 +65,7 @@ public class Game {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }else{
         }
     }
 }

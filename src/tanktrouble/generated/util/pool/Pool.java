@@ -66,6 +66,7 @@ public class Pool<Key, Value extends Serializable> implements Iterable<Map.Entry
     private enum ActionType{
         ADD,
         REMOVE,
+        UPDATE,
         SYNC,
         SYNC_RESULT
     }
@@ -151,10 +152,23 @@ public class Pool<Key, Value extends Serializable> implements Iterable<Map.Entry
             switch (type){
                 case ADD -> resolveAdd(key.content.key, value.content);
                 case REMOVE -> resolveRemove(key.content.key);
+                case UPDATE -> resolveUpdate(key.content.key, value.content);
                 case SYNC -> sync();
                 case SYNC_RESULT -> resolveSyncResult(data.content.data);
             }
         }
+    }
+
+    private void resolveUpdate(Key key, Value value) throws IOException {
+        if(owner){
+            update(key, value);
+        }else{
+            emit(new Action(ActionType.UPDATE, key, value));
+        }
+    }
+
+    public void update(Key key, Value value){
+        content.update(key, value);
     }
 
     private void resolveAdd(Key key, Value value) {
