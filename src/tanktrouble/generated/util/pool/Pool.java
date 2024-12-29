@@ -161,17 +161,23 @@ public class Pool<Key, Value extends Serializable> implements Iterable<Map.Entry
 
     private void resolveUpdate(Key key, Value value) throws IOException {
         if(owner){
-            update(key, value);
+            emit(new Action(ActionType.UPDATE, key, value));
+        }
+        content.update(key, value);
+    }
+
+    public void update(Key key, Value value) throws IOException {
+        if(owner){
+            resolveUpdate(key, value);
         }else{
             emit(new Action(ActionType.UPDATE, key, value));
         }
     }
 
-    public void update(Key key, Value value){
-        content.update(key, value);
-    }
-
-    private void resolveAdd(Key key, Value value) {
+    private void resolveAdd(Key key, Value value) throws IOException {
+        if(owner){
+            emit(new Action(ActionType.ADD, key, value));
+        }
         content.add(key, value);
     }
 
@@ -183,7 +189,10 @@ public class Pool<Key, Value extends Serializable> implements Iterable<Map.Entry
         }
     }
 
-    private void resolveRemove(Key key){
+    private void resolveRemove(Key key) throws IOException {
+        if(owner){
+            emit(new Action(ActionType.REMOVE, key));
+        }
         content.remove(key);
     }
 

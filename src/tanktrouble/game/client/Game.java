@@ -54,6 +54,7 @@ public class Game {
 
         try{
             tanks.add(name, selfTank);
+            tanks.sync();
         }catch (Exception e){
             e.printStackTrace();
         }
