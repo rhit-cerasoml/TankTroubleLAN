@@ -6,6 +6,7 @@ import java.util.Map;
 
 public class TankTrouble extends PApplet {
     public static boolean isHost;
+    public static String name;
     Game game;
 
     @Override
