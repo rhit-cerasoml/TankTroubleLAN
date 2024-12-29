@@ -37,6 +37,7 @@ public class TankTrouble extends PApplet {
             game.tanks.update(name, selfTank);
             if(isHost){
                 game.bullets.processActions();
+                game.tanks.processActions();
                 game.bullets.sync();
             }
             fill(255, 255, 125);
