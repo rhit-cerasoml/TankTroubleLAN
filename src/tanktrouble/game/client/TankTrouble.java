@@ -32,8 +32,9 @@ public class TankTrouble extends PApplet {
     public void draw(){
         background(0);
         try {
-            game.selfTank.move(keysDown);
-            game.tanks.update(name, game.selfTank);
+            Tank selfTank = game.tanks.get(name);
+            selfTank.move(keysDown);
+            game.tanks.update(name, selfTank);
             if(isHost){
                 game.bullets.processActions();
                 game.bullets.sync();
