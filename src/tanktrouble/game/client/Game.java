@@ -1,34 +1,37 @@
 package tanktrouble.game.client;
 
-import tanktrouble.generated.util.net.connection.Connection;
-import tanktrouble.generated.util.net.connection.ConnectionGroup;
+import tanktrouble.game.client.util.Synchronizers;
+import tanktrouble.game.client.util.actions.ActionManager;
+import tanktrouble.game.client.util.actions.ActionManagerClient;
+import tanktrouble.game.client.util.actions.ActionManagerServer;
+import tanktrouble.game.client.util.connection.NamedConnection;
+import tanktrouble.game.client.util.connection.NamedConnectionGroup;
+import tanktrouble.game.client.util.connection.SingleNamedConnection;
+import tanktrouble.game.client.util.serial.Synchronizer;
+import tanktrouble.game.client.util.sharedhashmap.SharedHashMap;
+import tanktrouble.game.client.util.sharedhashmap.SharedHashMapClient;
+import tanktrouble.game.client.util.sharedhashmap.SharedHashMapServer;
+import tanktrouble.game.client.util.sharedhashmap.TargetedAction;
 import tanktrouble.generated.util.net.connection.SocketConnection;
-import tanktrouble.generated.util.net.host.ConnectionAcceptor;
 import tanktrouble.generated.util.net.host.TCPHost;
-import tanktrouble.generated.util.net.protocol.ProtocolManager;
-import tanktrouble.generated.util.pool.ArrayListPool;
-import tanktrouble.generated.util.pool.HashMapPool;
-import tanktrouble.generated.util.pool.Pool;
 import tanktrouble.generated.util.serial.Deserializer;
-import tanktrouble.generated.util.serial.Serializer;
 import tanktrouble.generated.util.serial.SerializingInputStream;
-import tanktrouble.generated.util.serial.SerializingOutputStream;
 
 import java.net.Socket;
-import java.util.Random;
 
 public class Game {
     TCPHost hostAcceptor;
-    Connection connection;
-    ProtocolManager protocolManager;
-
-    Pool<Integer, Bullet> bullets;
-    Pool<String, Tank> tanks;
+    NamedConnection connection;
+    ActionManager actionManager;
+    SharedHashMap<String, Tank> tanks;
     public Game(boolean host, String name){
+        Synchronizer<Tank> tankSynchronizer = new Synchronizer<>(Tank::serialize, Tank::new);
         if(host){
-            this.connection = new ConnectionGroup();
+            this.connection = new NamedConnectionGroup();
+            actionManager = new ActionManagerServer(this.connection);
+            tanks = new SharedHashMapServer<>(actionManager, Synchronizers.STRING_SYNCHRONIZER, tankSynchronizer);
             try {
-                hostAcceptor = new TCPHost(((ConnectionGroup)this.connection)::addConnection, 1234);
+                hostAcceptor = new TCPHost(c -> ((NamedConnectionGroup)connection).addConnection(new SingleNamedConnection(c)), 1234);
             }catch (Exception e){
                 e.printStackTrace();
                 System.exit(-1);
@@ -36,34 +39,32 @@ public class Game {
         } else {
             try {
                 Socket s = new Socket("127.0.0.1", 1234);
-                connection = new SocketConnection(s);
+                connection = new SingleNamedConnection(new SocketConnection(s));
+                actionManager = new ActionManagerClient(this.connection);
+                tanks = new SharedHashMapClient<>(actionManager, Synchronizers.STRING_SYNCHRONIZER, tankSynchronizer);
             }catch (Exception e){
                 e.printStackTrace();
                 System.exit(-1);
             }
         }
-        protocolManager = new ProtocolManager(connection);
-        bullets = new Pool<>(new ArrayListPool<>(Bullet::new), protocolManager, host);
-        tanks = new Pool<>(new HashMapPool<>(
-                (item, out) -> out.writeString(item),
-                SerializingInputStream::readString,
-                Tank::new), protocolManager, host);
+
+        tanks.registerElementAction(Tank.UpdateTankAction::new, Tank.UpdateTankAction.class);
+
 
         try{
-            tanks.add(name, new Tank(250, 250, name));
-            tanks.sync();
+            tanks.put(name, new Tank(250, 250, name));
         }catch (Exception e){
             e.printStackTrace();
         }
 
-        if(!host) {
-            try {
-                Random r = new Random();
-                bullets.add(0, new Bullet(r.nextFloat() * 500, r.nextFloat() * 500));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }else{
-        }
+//        if(!host) {
+//            try {
+//                Random r = new Random();
+//                bullets.add(0, new Bullet(r.nextFloat() * 500, r.nextFloat() * 500));
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }else{
+//        }
     }
 }

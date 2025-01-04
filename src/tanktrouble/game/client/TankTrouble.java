@@ -26,31 +26,38 @@ public class TankTrouble extends PApplet {
         super.settings();
         size(500, 500);
         game = new Game(isHost, name);
+        game.tanks.setSyncListener(() -> {
+            self = game.tanks.get(name);
+        });
+        self = game.tanks.get(name);
     }
+
+    public static Tank self = null;
 
     @Override
     public void draw(){
         background(0);
         try {
-            Tank selfTank = game.tanks.get(name);
-            selfTank.move(keysDown);
-            game.tanks.update(name, selfTank);
-            if(isHost){
-                game.bullets.processActions();
-                game.tanks.processActions();
-                game.bullets.sync();
+            if(self != null){
+                self.move(keysDown);
+                game.tanks.sendAction(name, new Tank.UpdateTankAction(self));
             }
+//            if(isHost){
+//                game.bullets.processActions();
+//                game.tanks.processActions();
+//                game.bullets.sync();
+//            }
             fill(255, 255, 125);
             stroke(255);
-            for(Map.Entry<Integer, Bullet> entry : game.bullets) {
-                Bullet b = entry.getValue();
-                if(isHost){
-                    b.x += random(-1.0f, 1.0f);
-                    b.y += random(-1.0f, 1.0f);
-                }
-                circle(b.x, b.y, 50);
-            }
-            for(Map.Entry<String, Tank> tankEntry : game.tanks){
+//            for(Map.Entry<Integer, Bullet> entry : game.bullets) {
+//                Bullet b = entry.getValue();
+//                if(isHost){
+//                    b.x += random(-1.0f, 1.0f);
+//                    b.y += random(-1.0f, 1.0f);
+//                }
+//                circle(b.x, b.y, 50);
+//            }
+            for(Map.Entry<String, Tank> tankEntry : game.tanks.entrySet()){
                 tankEntry.getValue().draw(this);
             }
         }catch (Exception ignored){}

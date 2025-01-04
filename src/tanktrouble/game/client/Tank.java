@@ -2,6 +2,7 @@ package tanktrouble.game.client;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
+import tanktrouble.game.client.util.sharedhashmap.TargetedAction;
 import tanktrouble.generated.util.serial.Serializable;
 import tanktrouble.generated.util.serial.SerializingInputStream;
 import tanktrouble.generated.util.serial.SerializingOutputStream;
@@ -64,6 +65,56 @@ public class Tank implements Serializable {
         }
         if(keysDown[3]){
             angle += turnSpeed;
+        }
+    }
+
+    public static class UpdateTankAction implements TargetedAction<Tank> {
+        float x, y;
+        float angle;
+        public UpdateTankAction(Tank target){
+            this.x = target.x;
+            this.y = target.y;
+            this.angle = target.angle;
+        }
+        @Override
+        public boolean apply(Tank target) {
+            float temp = target.x;
+            target.x = x;
+            x = temp;
+            temp = target.y;
+            target.y = y;
+            y = temp;
+            temp = target.angle;
+            target.angle = angle;
+            angle = temp;
+            return true;
+        }
+
+        @Override
+        public boolean revert(Tank target) {
+            float temp = target.x;
+            target.x = x;
+            x = temp;
+            temp = target.y;
+            target.y = y;
+            y = temp;
+            temp = target.angle;
+            target.angle = angle;
+            angle = temp;
+            return false;
+        }
+
+        @Override
+        public void serialize(SerializingOutputStream out) {
+            out.writeFloat(x);
+            out.writeFloat(y);
+            out.writeFloat(angle);
+        }
+
+        public UpdateTankAction(SerializingInputStream in) throws SerializingInputStream.InvalidStreamLengthException {
+            this.x = in.readFloat();
+            this.y = in.readFloat();
+            this.angle = in.readFloat();
         }
     }
 }
