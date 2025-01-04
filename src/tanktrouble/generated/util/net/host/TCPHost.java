@@ -32,7 +32,7 @@ public class TCPHost extends Thread {
         while(open && !serverSocket.isClosed()){
             try {
                 Socket s = serverSocket.accept();
-                SocketConnection connection = new SocketConnection(s);
+                SocketConnection connection = new SocketConnection(s, true);
                 acceptor.acceptConnection(connection);
             } catch (IOException e) {
                 e.printStackTrace();

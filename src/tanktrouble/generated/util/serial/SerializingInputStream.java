@@ -12,9 +12,9 @@ import java.util.ArrayList;
 public class SerializingInputStream extends ByteArrayInputStream {
     public SerializingInputStream(byte[] buf) { super(buf); }
     public SerializingInputStream(byte[] buf, int offset, int length) { super(buf, offset, length); }
-    public SerializingInputStream(FileInputStream fis) throws IOException {
-        super(fis.readAllBytes());
-    }
+//    public SerializingInputStream(FileInputStream fis) throws IOException {
+//        super(fis.readAllBytes());
+//    }
 
     public int readInt() throws InvalidStreamLengthException { // not thread safe rn
         if(available() < 4) {
@@ -26,7 +26,7 @@ public class SerializingInputStream extends ByteArrayInputStream {
         int val = 0;
         for(int i = 0; i < 4; i++) {
             val <<= 8;
-            val |= buf[i];
+            val |= Byte.toUnsignedInt(buf[i]);
         }
         return val;
     }
@@ -41,7 +41,7 @@ public class SerializingInputStream extends ByteArrayInputStream {
         int val = 0;
         for(int i = 0; i < 8; i++) {
             val <<= 8;
-            val |= buf[0];
+            val |= Byte.toUnsignedInt(buf[i]);
         }
         return val;
     }
@@ -86,7 +86,14 @@ public class SerializingInputStream extends ByteArrayInputStream {
     public byte[] readByteArray() throws InvalidStreamLengthException {
         int len = readInt();
         try{
-            return readNBytes(len);
+            if(len < available()){
+                throw new InvalidStreamLengthException("Stream of "+available()+" bytes is invalid for type byte[" + len + "]");
+            }
+            byte[] data = new byte[len];
+            for(int i = 0; i < len; i++){
+                data[i] = (byte)read();
+            }
+            return data;
         }catch (Exception e){
             throw new InvalidStreamLengthException("Issue while reading byte array: " + e);
         }

@@ -150,11 +150,21 @@ public class Pool<Key, Value extends Serializable> implements Iterable<Map.Entry
 
         public void execute() throws IOException, SerializingInputStream.InvalidStreamLengthException {
             switch (type){
-                case ADD -> resolveAdd(key.content.key, value.content);
-                case REMOVE -> resolveRemove(key.content.key);
-                case UPDATE -> resolveUpdate(key.content.key, value.content);
-                case SYNC -> sync();
-                case SYNC_RESULT -> resolveSyncResult(data.content.data);
+                case ADD:
+                    resolveAdd(key.content.key, value.content);
+                    break;
+                case REMOVE:
+                    resolveRemove(key.content.key);
+                    break;
+                case UPDATE:
+                    resolveUpdate(key.content.key, value.content);
+                    break;
+                case SYNC:
+                    sync();
+                    break;
+                case SYNC_RESULT:
+                    resolveSyncResult(data.content.data);
+                    break;
             }
         }
     }

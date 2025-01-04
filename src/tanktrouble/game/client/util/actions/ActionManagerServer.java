@@ -55,6 +55,8 @@ public class ActionManagerServer extends ActionManager {
             if(!result){
                 stateValid.put(source, false);
             }
+        }else{
+            System.out.println("Rejected request");
         }
     }
 

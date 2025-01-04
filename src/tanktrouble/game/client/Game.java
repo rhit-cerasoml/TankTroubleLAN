@@ -30,25 +30,28 @@ public class Game {
             this.connection = new NamedConnectionGroup();
             actionManager = new ActionManagerServer(this.connection);
             tanks = new SharedHashMapServer<>(actionManager, Synchronizers.STRING_SYNCHRONIZER, tankSynchronizer);
+            tanks.registerElementAction(Tank.UpdateTankAction::new, Tank.UpdateTankAction.class);
             try {
-                hostAcceptor = new TCPHost(c -> ((NamedConnectionGroup)connection).addConnection(new SingleNamedConnection(c)), 1234);
+                hostAcceptor = new TCPHost(c -> ((NamedConnectionGroup)connection).addConnection(new SingleNamedConnection(c)), TankTrouble.port);
             }catch (Exception e){
                 e.printStackTrace();
                 System.exit(-1);
             }
         } else {
             try {
-                Socket s = new Socket("127.0.0.1", 1234);
-                connection = new SingleNamedConnection(new SocketConnection(s));
+                Socket s = new Socket(TankTrouble.ip, TankTrouble.port);
+                SocketConnection sc = new SocketConnection(s);
+                connection = new SingleNamedConnection(sc);
                 actionManager = new ActionManagerClient(this.connection);
                 tanks = new SharedHashMapClient<>(actionManager, Synchronizers.STRING_SYNCHRONIZER, tankSynchronizer);
+                tanks.registerElementAction(Tank.UpdateTankAction::new, Tank.UpdateTankAction.class);
+                sc.start();
             }catch (Exception e){
                 e.printStackTrace();
                 System.exit(-1);
             }
         }
 
-        tanks.registerElementAction(Tank.UpdateTankAction::new, Tank.UpdateTankAction.class);
 
 
         try{

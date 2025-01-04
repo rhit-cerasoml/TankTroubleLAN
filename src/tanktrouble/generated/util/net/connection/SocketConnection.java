@@ -22,7 +22,13 @@ public class SocketConnection extends Thread implements Connection {
         this.socket = socket;
         inputStream = socket.getInputStream();
         outputStream = socket.getOutputStream();
-        start();
+    }
+
+    public SocketConnection(Socket socket, boolean start) throws IOException {
+        this(socket);
+        if(start){
+            start();
+        }
     }
 
     @Override
@@ -60,13 +66,22 @@ public class SocketConnection extends Thread implements Connection {
         super.run();
         while(open){
             try {
-                byte[] binlen = inputStream.readNBytes(4);
+                byte[] binlen = new byte[4];
+                int result = inputStream.read(binlen);
+                if(result != 4) {
+                    System.out.println("malformed packet");
+                }
                 int len = 0;
                 for(int i = 0; i < 4; i++) {
                     len <<= 8;
-                    len |= binlen[i];
+                    len |= Byte.toUnsignedInt(binlen[i]);
                 }
-                listener.accept(inputStream.readNBytes(len));
+                byte[] data = new byte[len];
+                result = inputStream.read(data);
+                if(result != len) {
+                    System.out.println("malformed packet");
+                }
+                listener.accept(data);
             } catch (IOException e) {
                 e.printStackTrace();
                 open = false;

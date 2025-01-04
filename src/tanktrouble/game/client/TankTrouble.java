@@ -8,6 +8,8 @@ import java.util.Map;
 public class TankTrouble extends PApplet {
     public static boolean isHost;
     public static String name;
+    public static int port;
+    public static String ip;
     Game game;
 
     @Override
@@ -40,7 +42,9 @@ public class TankTrouble extends PApplet {
         try {
             if(self != null){
                 self.move(keysDown);
-                game.tanks.sendAction(name, new Tank.UpdateTankAction(self));
+                if(keysDown[0] || keysDown[1] || keysDown[2] || keysDown[3]) {
+                    game.tanks.sendAction(name, new Tank.UpdateTankAction(self));
+                }
             }
 //            if(isHost){
 //                game.bullets.processActions();

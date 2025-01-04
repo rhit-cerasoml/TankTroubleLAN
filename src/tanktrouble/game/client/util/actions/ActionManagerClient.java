@@ -91,11 +91,13 @@ public class ActionManagerClient extends ActionManager {
     }
 
     private void flushAcknowledgementBuffer(){
-        validDeadReckonState = true;
         while(!acknowledgementBuffer.isEmpty()){
             Action action = acknowledgementBuffer.pollLast();
-            action.revert();
+            if(validDeadReckonState) {
+                action.revert();
+            }
         }
+        validDeadReckonState = true;
     }
 
     private void revertDeadReckon(){

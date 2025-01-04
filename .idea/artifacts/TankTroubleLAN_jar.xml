@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="TankTroubleLAN:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/TankTroubleLAN_jar</output-path>
+    <root id="archive" name="TankTroubleLAN.jar">
+      <element id="module-output" name="TankTroubleLAN" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../../../../processing-3.5.4/core/library/core.jar" path-in-jar="/" />
+      <element id="library" level="project" name="core" />
+    </root>
+  </artifact>
+</component>

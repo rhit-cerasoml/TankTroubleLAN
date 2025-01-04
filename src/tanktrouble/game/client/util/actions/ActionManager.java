@@ -29,9 +29,15 @@ public abstract class ActionManager {
     public void processPacket(SerializingInputStream in, Source source) throws SerializingInputStream.InvalidStreamLengthException {
         int type = in.readInt();
         switch (type) {
-            case 0 -> processActionRequest(unpackageAction(in), source);
-            case 1 -> processActionAcknowledgement(new ActionAcknowledgement(in), source);
-            case 2 -> processRollbackAcknowledgement(source);
+            case 0:
+                processActionRequest(unpackageAction(in), source);
+                break;
+            case 1:
+                processActionAcknowledgement(new ActionAcknowledgement(in), source);
+                break;
+            case 2:
+                processRollbackAcknowledgement(source);
+                break;
         }
     }
 

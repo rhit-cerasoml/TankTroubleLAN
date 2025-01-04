@@ -89,7 +89,7 @@ public abstract class SharedHashMap<K, V> {
         if(id == null){
             throw new RuntimeException("Unregistered element action: " + action.getClass().getName());
         }
-        out.writeInt(elementActionMap.get(action.getClass()));
+        out.writeInt(id);
         action.serialize(out);
     }
 
@@ -145,6 +145,7 @@ public abstract class SharedHashMap<K, V> {
                 value = content.remove(key);
                 return true;
             }
+            changeListener.onChange();
             return false;
         }
 
@@ -180,6 +181,7 @@ public abstract class SharedHashMap<K, V> {
                 return false;
             }
             content.put(key, value);
+            System.out.println("apply put " + key + " : " + value);
             changeListener.onChange();
             return true;
         }
@@ -187,6 +189,7 @@ public abstract class SharedHashMap<K, V> {
         @Override
         public void revert() {
             content.remove(key);
+            System.out.println("revert put " + key + " : " + value);
             changeListener.onChange();
         }
 
@@ -242,11 +245,13 @@ public abstract class SharedHashMap<K, V> {
         @Override
         public boolean apply() {
             applySyncData(this);
+            System.out.println("apply sync response");
             return true;
         }
 
         @Override
         public void revert() {
+            System.out.println("revert sync response");
             // Do nothing
         }
 
@@ -277,7 +282,7 @@ public abstract class SharedHashMap<K, V> {
             sb.append(entry.getValue().toString());
             sb.append("\n");
         }
-        if(sb.isEmpty()){
+        if(sb.length() == 0){
             return "";
         }
         return sb.substring(0, sb.length() - 1);

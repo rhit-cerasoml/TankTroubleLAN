@@ -19,7 +19,11 @@ public class SerializingOutputStream extends ByteArrayOutputStream {
             buf[i-1] = (byte) (val & 0xFF);
             val <<= 8;
         }
-        writeBytes(buf);
+        try {
+            write(buf);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public void writeLong(long val) {
@@ -29,24 +33,40 @@ public class SerializingOutputStream extends ByteArrayOutputStream {
             buf[i-1] = (byte) (val & 0xFF);
             val <<= 8;
         }
-        writeBytes(buf);
+        try {
+            write(buf);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public void writeDouble(double val) {
         ByteBuffer bb = ByteBuffer.allocate(8);
         bb.putDouble(val);
-        writeBytes(bb.array());
+        try {
+            write(bb.array());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public void writeFloat(float val) {
         ByteBuffer bb = ByteBuffer.allocate(4);
         bb.putFloat(val);
-        writeBytes(bb.array());
+        try {
+            write(bb.array());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public void writeString(String s){
         writeInt(s.length());
-        writeBytes(s.getBytes());
+        try {
+            write(s.getBytes());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public void writeBoolean(boolean b){
@@ -55,7 +75,11 @@ public class SerializingOutputStream extends ByteArrayOutputStream {
 
     public void writeByteArray(byte[] b){
         writeInt(b.length);
-        writeBytes(b);
+        try {
+            write(b);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public <T extends Serializable> void writeArrayList(ArrayList<T> array){
