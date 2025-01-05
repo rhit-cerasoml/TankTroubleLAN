@@ -1,5 +1,6 @@
 package tanktrouble.game.client.util.actions;
 
+import tanktrouble.game.client.TankTrouble;
 import tanktrouble.game.client.util.connection.NamedConnection;
 import tanktrouble.game.client.util.destination.Destination;
 import tanktrouble.game.client.util.destination.Source;
@@ -102,21 +103,19 @@ public class ActionManagerClient extends ActionManager {
 
     private void revertDeadReckon(){
         validDeadReckonState = false;
-        ListIterator<Action> iterator = acknowledgementBuffer.listIterator(acknowledgementBuffer.size());
-        while (iterator.hasPrevious()) {
-            Action actionToRevert = iterator.previous();
+        for(Action actionToRevert : acknowledgementBuffer){
             actionToRevert.revert();
         }
     }
 
     private void attemptApplyDeadReckon(){
         validDeadReckonState = true;
-        for(Action action : acknowledgementBuffer){
+        ListIterator<Action> iterator = acknowledgementBuffer.listIterator(acknowledgementBuffer.size());
+        while (iterator.hasPrevious()) {
+            Action action = iterator.previous();
             if(!action.apply()){
                 validDeadReckonState = false;
-                ListIterator<Action> iterator = acknowledgementBuffer.listIterator(acknowledgementBuffer.size());
-                while (iterator.hasPrevious()) {
-                    Action actionToRevert = iterator.previous();
+                for(Action actionToRevert : acknowledgementBuffer){
                     if(action == actionToRevert) break;
                     actionToRevert.revert();
                 }

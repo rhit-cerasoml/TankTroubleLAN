@@ -11,11 +11,15 @@ import tanktrouble.generated.util.serial.SerializingOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class ActionManager {
     private final ArrayList<Deserializer<Action>> actions = new ArrayList<>();
     private final HashMap<Class<?>, Integer> actionMap = new HashMap<>();
     private final NamedConnection connection;
+
+    protected ReentrantLock lock = new ReentrantLock(); // TODO replace this with a better solution
+
     public ActionManager(NamedConnection connection){
         this.connection = connection;
         connection.setListener((data, source) -> processPacket(new SerializingInputStream(data), source));
@@ -26,7 +30,16 @@ public abstract class ActionManager {
         actions.add(deserializer);
     }
 
+    public void lock(){
+        lock.lock();
+    }
+
+    public void unlock(){
+        lock.unlock();
+    }
+
     public void processPacket(SerializingInputStream in, Source source) throws SerializingInputStream.InvalidStreamLengthException {
+        lock.lock();
         int type = in.readInt();
         switch (type) {
             case 0:
@@ -39,6 +52,7 @@ public abstract class ActionManager {
                 processRollbackAcknowledgement(source);
                 break;
         }
+        lock.unlock();
     }
 
     protected void emitAction(Action action, Destination destination) throws IOException {

@@ -24,7 +24,7 @@ public class Game {
     NamedConnection connection;
     ActionManager actionManager;
     SharedHashMap<String, Tank> tanks;
-    public Game(boolean host, String name){
+    public Game(boolean host, String name, String ip, int port){
         Synchronizer<Tank> tankSynchronizer = new Synchronizer<>(Tank::serialize, Tank::new);
         if(host){
             this.connection = new NamedConnectionGroup();
@@ -32,14 +32,14 @@ public class Game {
             tanks = new SharedHashMapServer<>(actionManager, Synchronizers.STRING_SYNCHRONIZER, tankSynchronizer);
             tanks.registerElementAction(Tank.UpdateTankAction::new, Tank.UpdateTankAction.class);
             try {
-                hostAcceptor = new TCPHost(c -> ((NamedConnectionGroup)connection).addConnection(new SingleNamedConnection(c)), TankTrouble.port);
+                hostAcceptor = new TCPHost(c -> ((NamedConnectionGroup)connection).addConnection(new SingleNamedConnection(c)), port);
             }catch (Exception e){
                 e.printStackTrace();
                 System.exit(-1);
             }
         } else {
             try {
-                Socket s = new Socket(TankTrouble.ip, TankTrouble.port);
+                Socket s = new Socket(ip, port);
                 SocketConnection sc = new SocketConnection(s);
                 connection = new SingleNamedConnection(sc);
                 actionManager = new ActionManagerClient(this.connection);
@@ -53,11 +53,12 @@ public class Game {
         }
 
 
-
-        try{
-            tanks.put(name, new Tank(250, 250, name));
-        }catch (Exception e){
-            e.printStackTrace();
+        if(!name.isEmpty()) {
+            try {
+                tanks.put(name, new Tank(250, 250, name));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
 //        if(!host) {

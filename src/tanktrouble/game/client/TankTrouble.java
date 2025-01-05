@@ -27,7 +27,7 @@ public class TankTrouble extends PApplet {
     public void settings() {
         super.settings();
         size(500, 500);
-        game = new Game(isHost, name);
+        game = new Game(isHost, name, ip, port);
         game.tanks.setSyncListener(() -> {
             self = game.tanks.get(name);
         });
@@ -39,6 +39,7 @@ public class TankTrouble extends PApplet {
     @Override
     public void draw(){
         background(0);
+        game.actionManager.lock();
         try {
             if(self != null){
                 self.move(keysDown);
@@ -65,6 +66,7 @@ public class TankTrouble extends PApplet {
                 tankEntry.getValue().draw(this);
             }
         }catch (Exception ignored){}
+        game.actionManager.unlock();
     }
 
     boolean[] keysDown = {false, false, false, false};
