@@ -10,14 +10,17 @@ import tanktrouble.generated.util.serial.SerializingOutputStream;
 public class Tank implements Serializable {
     float x, y;
     float angle;
+    float turretAngle;
     String name;
-    private static float speed = 2.5f;
-    private static float turnSpeed = 0.05f;
+    private static final float speed = 2.5f;
+    private static final float turnSpeed = 0.05f;
+    public static final float barrelLength = 25;
 
     public Tank(float x, float y, String name){
         this.x = x;
         this.y = y;
         this.angle = 0;
+        this.turretAngle = 0;
         this.name = name;
     }
 
@@ -27,6 +30,7 @@ public class Tank implements Serializable {
         out.writeFloat(x);
         out.writeFloat(y);
         out.writeFloat(angle);
+        out.writeFloat(turretAngle);
         out.writeString(name);
     }
 
@@ -35,14 +39,20 @@ public class Tank implements Serializable {
         this.x = in.readFloat();
         this.y = in.readFloat();
         this.angle = in.readFloat();
+        this.turretAngle = in.readFloat();
         this.name = in.readString();
     }
 
     public void draw(PApplet g){
+        g.stroke(0);
+        g.fill(255, 255, 125);
         g.translate(x, y);
         g.rotate(angle);
         g.rect(-15, -15, 30, 30);
         g.rotate(-angle);
+        g.rotate(turretAngle);
+        g.rect(-3, -3, barrelLength + 3, 6);
+        g.rotate(-turretAngle);
         g.translate(-x, -y);
         g.textAlign(PConstants.CENTER, PConstants.CENTER);
         g.text(name, x, y - 30);
@@ -68,13 +78,19 @@ public class Tank implements Serializable {
         }
     }
 
+    public void look(int mouseX, int mouseY) {
+        turretAngle = PApplet.atan2(mouseY - y, mouseX - x);
+    }
+
     public static class UpdateTankAction implements TargetedAction<Tank> {
         float x, y;
         float angle;
+        float turretAngle;
         public UpdateTankAction(Tank target){
             this.x = target.x;
             this.y = target.y;
             this.angle = target.angle;
+            this.turretAngle = target.turretAngle;
         }
         @Override
         public boolean apply(Tank target) {
@@ -87,6 +103,9 @@ public class Tank implements Serializable {
             temp = target.angle;
             target.angle = angle;
             angle = temp;
+            temp = target.turretAngle;
+            target.turretAngle = turretAngle;
+            turretAngle = temp;
             return true;
         }
 
@@ -101,7 +120,10 @@ public class Tank implements Serializable {
             temp = target.angle;
             target.angle = angle;
             angle = temp;
-            return false;
+            temp = target.turretAngle;
+            target.turretAngle = turretAngle;
+            turretAngle = temp;
+            return true;
         }
 
         @Override
@@ -109,12 +131,14 @@ public class Tank implements Serializable {
             out.writeFloat(x);
             out.writeFloat(y);
             out.writeFloat(angle);
+            out.writeFloat(turretAngle);
         }
 
         public UpdateTankAction(SerializingInputStream in) throws SerializingInputStream.InvalidStreamLengthException {
             this.x = in.readFloat();
             this.y = in.readFloat();
             this.angle = in.readFloat();
+            this.turretAngle = in.readFloat();
         }
     }
 }

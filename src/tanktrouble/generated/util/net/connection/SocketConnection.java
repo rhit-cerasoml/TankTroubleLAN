@@ -69,7 +69,8 @@ public class SocketConnection extends Thread implements Connection {
                 byte[] binlen = new byte[4];
                 int result = inputStream.read(binlen);
                 if(result != 4) {
-                    System.out.println("malformed packet");
+                    System.out.println("malformed packet size");
+                    close();
                 }
                 int len = 0;
                 for(int i = 0; i < 4; i++) {
@@ -80,6 +81,7 @@ public class SocketConnection extends Thread implements Connection {
                 result = inputStream.read(data);
                 if(result != len) {
                     System.out.println("malformed packet");
+                    close();
                 }
                 listener.accept(data);
             } catch (IOException e) {

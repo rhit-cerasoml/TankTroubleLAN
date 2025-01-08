@@ -87,6 +87,7 @@ public abstract class SharedHashMap<K, V> {
 
     private void packageTargetedAction(SerializingOutputStream out, TargetedAction<V> action){
         Integer id = elementActionMap.get(action.getClass());
+        System.out.println(id);
         if(id == null){
             throw new RuntimeException("Unregistered element action: " + action.getClass().getName());
         }
@@ -182,7 +183,6 @@ public abstract class SharedHashMap<K, V> {
                 return false;
             }
             content.put(key, value);
-            System.out.println("apply put " + key + " : " + value);
             changeListener.onChange();
             return true;
         }
@@ -190,7 +190,6 @@ public abstract class SharedHashMap<K, V> {
         @Override
         public void revert() {
             content.remove(key);
-            System.out.println("revert put " + key + " : " + value);
             changeListener.onChange();
         }
 

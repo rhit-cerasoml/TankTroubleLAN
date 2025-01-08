@@ -43,25 +43,24 @@ public class TankTrouble extends PApplet {
         try {
             if(self != null){
                 self.move(keysDown);
-                if(keysDown[0] || keysDown[1] || keysDown[2] || keysDown[3]) {
+                self.look(mouseX, mouseY);
+                if(keysDown[0] || keysDown[1] || keysDown[2] || keysDown[3] || pmouseX != mouseX || pmouseY != mouseY) {
                     game.tanks.sendAction(name, new Tank.UpdateTankAction(self));
                 }
+                if(mousePressed){
+                    game.bullets.put(floor(random(0, 100000)), new Bullet(self.x, self.y, self.turretAngle));
+                }
             }
-//            if(isHost){
-//                game.bullets.processActions();
-//                game.tanks.processActions();
-//                game.bullets.sync();
-//            }
-            fill(255, 255, 125);
-            stroke(255);
-//            for(Map.Entry<Integer, Bullet> entry : game.bullets) {
-//                Bullet b = entry.getValue();
-//                if(isHost){
-//                    b.x += random(-1.0f, 1.0f);
-//                    b.y += random(-1.0f, 1.0f);
-//                }
-//                circle(b.x, b.y, 50);
-//            }
+
+            if(isHost){
+                for(Map.Entry<Integer, Bullet> bulletEntry : game.bullets.entrySet()) {
+                    bulletEntry.getValue().move();
+                    //game.bullets.sendAction(bulletEntry.getKey(), new Bullet.UpdateBulletAction(bulletEntry.getValue()));
+                }
+            }
+            for(Map.Entry<Integer, Bullet> bulletEntry : game.bullets.entrySet()){
+                bulletEntry.getValue().draw(this);
+            }
             for(Map.Entry<String, Tank> tankEntry : game.tanks.entrySet()){
                 tankEntry.getValue().draw(this);
             }
