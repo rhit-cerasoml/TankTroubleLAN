@@ -24,13 +24,13 @@ public class ActionManagerClient extends ActionManager {
     }
 
     @Override
-    public boolean sendActionRequest(Action action) {
+    public boolean sendActionRequest(Action action, int actionID) {
         if(validDeadReckonState){
             boolean result = action.apply();
             if(result) {
                 acknowledgementBuffer.push(action);
                 try {
-                    emitAction(action, new Destination(Destination.Policy.ALL));
+                    emitAction(action, actionID, new Destination(Destination.Policy.ALL));
                 }catch (Exception e){
                     e.printStackTrace();
                     acknowledgementBuffer.pop();
@@ -49,7 +49,7 @@ public class ActionManagerClient extends ActionManager {
     }
 
     @Override
-    public void processActionRequest(Action action, Source source) {
+    public void processActionRequest(Action action, int actionID, Source source) {
         if(!acknowledgementBuffer.isEmpty()) {
             preAcknowledgementFutureBuffer.push(action);
         }else{

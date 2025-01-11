@@ -20,6 +20,7 @@ public class TankTrouble extends PApplet {
     @Override
     public void setup() {
         super.setup();
+        surface.setTitle(isHost ? "TankTrouble Server" : "TankTrouble Client");
         frameRate(30);
     }
 
@@ -55,7 +56,7 @@ public class TankTrouble extends PApplet {
             if(isHost){
                 for(Map.Entry<Integer, Bullet> bulletEntry : game.bullets.entrySet()) {
                     bulletEntry.getValue().move();
-                    //game.bullets.sendAction(bulletEntry.getKey(), new Bullet.UpdateBulletAction(bulletEntry.getValue()));
+                    game.bullets.sendAction(bulletEntry.getKey(), new Bullet.UpdateBulletAction(bulletEntry.getValue()));
                 }
             }
             for(Map.Entry<Integer, Bullet> bulletEntry : game.bullets.entrySet()){

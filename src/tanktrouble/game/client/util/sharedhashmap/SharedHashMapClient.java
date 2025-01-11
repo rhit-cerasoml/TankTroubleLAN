@@ -8,7 +8,7 @@ public class SharedHashMapClient<K, V> extends SharedHashMap<K, V> {
     public SharedHashMapClient(ActionManager actionManager, Synchronizer<K> keySynchronizer, Synchronizer<V> valueSynchronizer) {
         super(actionManager, keySynchronizer, valueSynchronizer);
         try {
-            actionManager.sendActionRequest(new SyncRequest());
+            actionManager.sendActionRequest(new SyncRequest(), syncRequestHandle);
         }catch (Exception e){
             e.printStackTrace();
         }

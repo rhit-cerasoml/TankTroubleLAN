@@ -92,6 +92,7 @@ public class Bullet implements Serializable {
             out.writeFloat(angle);
         }
 
+        // Deserializer
         public UpdateBulletAction(SerializingInputStream in) throws SerializingInputStream.InvalidStreamLengthException {
             this.x = in.readFloat();
             this.y = in.readFloat();

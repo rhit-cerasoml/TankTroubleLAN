@@ -31,12 +31,18 @@ public abstract class SharedHashMap<K, V> {
         registerCollectionActions();
     }
 
+    protected int syncRequestHandle;
+    protected int syncDataHandle;
+    protected int putActionHandle;
+    protected int removeActionHandle;
+    protected int elementActionHandle;
+
     private void registerCollectionActions(){
-        actionManager.registerAction(SyncRequest::new, SyncRequest.class);
-        actionManager.registerAction(SyncData::new, SyncData.class);
-        actionManager.registerAction(PutAction::new, PutAction.class);
-        actionManager.registerAction(RemoveAction::new, RemoveAction.class);
-        actionManager.registerAction(ElementAction::new, ElementAction.class);
+        syncRequestHandle = actionManager.registerAction(SyncRequest::new, SyncRequest.class);
+        syncDataHandle = actionManager.registerAction(SyncData::new, SyncData.class);
+        putActionHandle = actionManager.registerAction(PutAction::new, PutAction.class);
+        removeActionHandle = actionManager.registerAction(RemoveAction::new, RemoveAction.class);
+        elementActionHandle = actionManager.registerAction(ElementAction::new, ElementAction.class);
     }
 
     private final ArrayList<Deserializer<TargetedAction<V>>> elementActions = new ArrayList<>();
@@ -47,12 +53,12 @@ public abstract class SharedHashMap<K, V> {
     }
 
     public void sendAction(K key, TargetedAction<V> action) throws IOException {
-        actionManager.sendActionRequest(new ElementAction(key, action));
+        actionManager.sendActionRequest(new ElementAction(key, action), elementActionHandle);
     }
 
     public boolean put(K key, V value){
         try{
-            return actionManager.sendActionRequest(new PutAction(key, value));
+            return actionManager.sendActionRequest(new PutAction(key, value), putActionHandle);
         }catch (Exception e){
             return false;
         }
@@ -60,7 +66,7 @@ public abstract class SharedHashMap<K, V> {
 
     public boolean remove(K key){
         try {
-            return actionManager.sendActionRequest(new RemoveAction(key));
+            return actionManager.sendActionRequest(new RemoveAction(key), removeActionHandle);
         }catch (Exception e){
             return false;
         }
@@ -87,7 +93,6 @@ public abstract class SharedHashMap<K, V> {
 
     private void packageTargetedAction(SerializingOutputStream out, TargetedAction<V> action){
         Integer id = elementActionMap.get(action.getClass());
-        System.out.println(id);
         if(id == null){
             throw new RuntimeException("Unregistered element action: " + action.getClass().getName());
         }
