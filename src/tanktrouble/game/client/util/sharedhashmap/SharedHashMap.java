@@ -38,11 +38,11 @@ public abstract class SharedHashMap<K, V> {
     protected int elementActionHandle;
 
     private void registerCollectionActions(){
-        syncRequestHandle = actionManager.registerAction(SyncRequest::new, SyncRequest.class);
-        syncDataHandle = actionManager.registerAction(SyncData::new, SyncData.class);
-        putActionHandle = actionManager.registerAction(PutAction::new, PutAction.class);
-        removeActionHandle = actionManager.registerAction(RemoveAction::new, RemoveAction.class);
-        elementActionHandle = actionManager.registerAction(ElementAction::new, ElementAction.class);
+        syncRequestHandle = actionManager.registerAction(SyncRequest::new);
+        syncDataHandle = actionManager.registerAction(SyncData::new);
+        putActionHandle = actionManager.registerAction(PutAction::new);
+        removeActionHandle = actionManager.registerAction(RemoveAction::new);
+        elementActionHandle = actionManager.registerAction(ElementAction::new);
     }
 
     private final ArrayList<Deserializer<TargetedAction<V>>> elementActions = new ArrayList<>();

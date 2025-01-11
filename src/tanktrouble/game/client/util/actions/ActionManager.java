@@ -24,7 +24,7 @@ public abstract class ActionManager {
         connection.setListener((data, source) -> processPacket(new SerializingInputStream(data), source));
     }
 
-    public int registerAction(Deserializer<Action> deserializer, Class<?> type){
+    public int registerAction(Deserializer<Action> deserializer){
         actions.add(deserializer);
         return actions.size() - 1;
     }
