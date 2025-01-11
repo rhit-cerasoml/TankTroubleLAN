@@ -50,7 +50,6 @@ public class Game {
                 tanks = new SharedHashMapClient<>(actionManager, Synchronizers.STRING_SYNCHRONIZER, tankSynchronizer);
                 bullets = new SharedHashMapClient<>(actionManager, Synchronizers.INTEGER_SYNCHRONIZER, bulletSynchronizer);
                 tanks.registerElementAction(Tank.UpdateTankAction::new, Tank.UpdateTankAction.class);
-                tanks.registerElementAction(Tank.UpdateTankAction::new, Tank.UpdateTankAction.class);
                 bullets.registerElementAction(Bullet.UpdateBulletAction::new, Bullet.UpdateBulletAction.class);
                 sc.start();
             }catch (Exception e){

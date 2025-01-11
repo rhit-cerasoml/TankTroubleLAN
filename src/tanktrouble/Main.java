@@ -24,7 +24,7 @@ public class Main {
         }else{
             TankTrouble.name = args[3];
         }
-        if(!TankTrouble.isHost) Thread.sleep(1000);
+        if(!TankTrouble.isHost) Thread.sleep(2000);
         TankTrouble.main("tanktrouble.game.client.TankTrouble", args);
     }
 }

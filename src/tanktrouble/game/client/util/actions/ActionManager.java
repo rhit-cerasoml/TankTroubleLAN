@@ -15,7 +15,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class ActionManager {
     private final ArrayList<Deserializer<Action>> actions = new ArrayList<>();
-    private final HashMap<Class<?>, Integer> actionMap = new HashMap<>();
     private final NamedConnection connection;
 
     protected ReentrantLock lock = new ReentrantLock(); // TODO replace this with a better solution
@@ -25,9 +24,9 @@ public abstract class ActionManager {
         connection.setListener((data, source) -> processPacket(new SerializingInputStream(data), source));
     }
 
-    public void registerAction(Deserializer<Action> deserializer, Class<?> type){
-        actionMap.put(type, actions.size());
+    public int registerAction(Deserializer<Action> deserializer){
         actions.add(deserializer);
+        return actions.size() - 1;
     }
 
     public void lock(){
@@ -43,7 +42,8 @@ public abstract class ActionManager {
         int type = in.readInt();
         switch (type) {
             case 0:
-                processActionRequest(unpackageAction(in), source);
+                int actionID = in.readInt();
+                processActionRequest(unpackageAction(in, actionID), actionID, source);
                 break;
             case 1:
                 processActionAcknowledgement(new ActionAcknowledgement(in), source);
@@ -55,10 +55,10 @@ public abstract class ActionManager {
         lock.unlock();
     }
 
-    protected void emitAction(Action action, Destination destination) throws IOException {
+    protected void emitAction(Action action, int actionID, Destination destination) throws IOException {
         SerializingOutputStream out = new SerializingOutputStream();
         out.writeInt(0);
-        packageAction(out, action);
+        packageAction(out, action, actionID);
         connection.send(out.toByteArray(), destination);
     }
 
@@ -75,11 +75,11 @@ public abstract class ActionManager {
         connection.send(out.toByteArray(), destination);
     }
 
-    public abstract boolean sendActionRequest(Action action) throws IOException;
+    public abstract boolean sendActionRequest(Action action, int actionID) throws IOException;
 
     protected abstract void processRollbackAcknowledgement(Source source);
 
-    protected abstract void processActionRequest(Action action, Source source);
+    protected abstract void processActionRequest(Action action, int actionID, Source source);
 
     protected abstract void processActionAcknowledgement(ActionAcknowledgement actionAcknowledgement, Source source);
 
@@ -100,17 +100,12 @@ public abstract class ActionManager {
         }
     }
 
-    private void packageAction(SerializingOutputStream out, Action action){
-        Integer actionID = actionMap.get(action.getClass());
-        if(actionID == null){
-            throw new RuntimeException("Unregistered action: " + action.getClass().getName());
-        }
+    private void packageAction(SerializingOutputStream out, Action action, int actionID){
         out.writeInt(actionID);
         action.serialize(out);
     }
 
-    private Action unpackageAction(SerializingInputStream in) throws SerializingInputStream.InvalidStreamLengthException {
-        int actionID = in.readInt();
+    private Action unpackageAction(SerializingInputStream in, int actionID) throws SerializingInputStream.InvalidStreamLengthException {
         return actions.get(actionID).deserialize(in);
     }
 }

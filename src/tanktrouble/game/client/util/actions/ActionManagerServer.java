@@ -16,10 +16,10 @@ public class ActionManagerServer extends ActionManager {
     }
 
     @Override
-    public boolean sendActionRequest(Action action) throws IOException {
+    public boolean sendActionRequest(Action action, int actionID) throws IOException {
         boolean result = action.apply();
         if(result){
-            emitAction(action, new Destination(Destination.Policy.ALL));
+            emitAction(action, actionID, new Destination(Destination.Policy.ALL));
         }
         return result;
     }
@@ -30,7 +30,7 @@ public class ActionManagerServer extends ActionManager {
     }
 
     @Override
-    public void processActionRequest(Action action, Source source) {
+    public void processActionRequest(Action action, int actionID, Source source) {
         boolean accept;
         if(!stateValid.containsKey(source)){
             stateValid.put(source, true);
@@ -42,7 +42,7 @@ public class ActionManagerServer extends ActionManager {
             boolean result = action.apply();
             if (result) {
                 try {
-                    emitAction(action, new Destination(Destination.Policy.ALL_EXCEPT, source));
+                    emitAction(action, actionID, new Destination(Destination.Policy.ALL_EXCEPT, source));
                 }catch (Exception e){
                     e.printStackTrace();
                 }

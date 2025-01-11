@@ -17,7 +17,7 @@ public class SerializingOutputStream extends ByteArrayOutputStream {
 
         for(int i = 4; i != 0; i--) {
             buf[i-1] = (byte) (val & 0xFF);
-            val <<= 8;
+            val >>= 8;
         }
         try {
             write(buf);
@@ -31,7 +31,7 @@ public class SerializingOutputStream extends ByteArrayOutputStream {
 
         for(int i = 8; i != 0; i--) {
             buf[i-1] = (byte) (val & 0xFF);
-            val <<= 8;
+            val >>= 8;
         }
         try {
             write(buf);

@@ -13,7 +13,7 @@ public class SharedHashMapServer<K, V> extends SharedHashMap<K, V> {
     protected void applySyncRequest(SyncRequest syncRequest) {
         SyncData syncData = new SyncData();
         try {
-            actionManager.sendActionRequest(syncData);
+            actionManager.sendActionRequest(syncData, syncDataHandle);
         }catch (Exception e){
             e.printStackTrace();
         }
