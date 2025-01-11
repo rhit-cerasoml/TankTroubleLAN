@@ -38,7 +38,7 @@ public class SocketConnection extends Thread implements Connection {
 
         for(int i = 4; i != 0; i--) {
             buf[i-1] = (byte) (val & 0xFF);
-            val <<= 8;
+            val >>= 8;
         }
         outputStream.write(buf);
         outputStream.write(data);
@@ -69,7 +69,7 @@ public class SocketConnection extends Thread implements Connection {
                 byte[] binlen = new byte[4];
                 int result = inputStream.read(binlen);
                 if(result != 4) {
-                    System.out.println("malformed packet size");
+                    System.out.println("malformed packet size: " + result);
                     close();
                 }
                 int len = 0;
