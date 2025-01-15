@@ -104,7 +104,7 @@ public abstract class SharedHashMap<K, V> {
         return elementActions.get(in.readInt()).deserialize(in);
     }
 
-    private class ElementAction implements Action {
+    private   class ElementAction implements Action {
         private final K key;
         private final TargetedAction<V> action;
 
